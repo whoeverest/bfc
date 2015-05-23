@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # brainfuck
 
 # >     Increment the pointer.
@@ -71,7 +73,7 @@ class Brainfuck(object):
             '[': self.start_loop,
             ']': self.end_loop,
         }
-        
+
         commands[cmd]()
 
     def step(self):
@@ -88,12 +90,14 @@ class Brainfuck(object):
 add_one_and_two = '+>++[-<+>]<.'
 subtract_four_and_two = '++++>++[<->-]'
 copy_m2_to_m0 = '>>+++[-<<+>>]'
+compare_2_and_3 = '++>+++[]'
+variables = '>[<]>+[<]>>++[<]>>>+++'
 
-b = Brainfuck(copy_m2_to_m0)
+b = Brainfuck(variables)
 
 while True:
     try:
         b.step()
-        sleep(.1)
+        sleep(.5)
     except EndOfProgram:
         exit(0)
