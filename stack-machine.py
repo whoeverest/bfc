@@ -1,5 +1,7 @@
 from .brainfuck import Brainfuck
 
+
+
 """
 push 1
 push 2
@@ -15,9 +17,9 @@ add
 ++>
 +++>
  multiply code here -> memory = [1, 6, _]
- 								       ^
+                                       ^
  add code here -> memory = [7, _]
- 							   ^
+                               ^
 ++++>
  add code here -> memory = [11, _]
                                 ^
@@ -38,13 +40,13 @@ print
 
 """
 (if (== 10 5)
-	(print 0)
-	(print 1))
+    (print 0)
+    (print 1))
 
 1. push 5
 2. push 10
 3. equals
-4. jmp_if_true, 7
+4. jmp_if_one, 7
 5. push 0
 6. print
 7. push 1
