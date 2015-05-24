@@ -22,11 +22,25 @@ class Brainfuck(object):
         self.source_index = 0
         self.code = ''.join([ch for ch in code if ch in '<>-+[],.'])
         self.pointer = 0
+        self.brackets = {}
+
+        self.map_brackets()
         
         if mapped_memory:
             self.memory = [0] + ([0, 1] * (size / 2))
         else:
             self.code = [0] * size
+
+    def map_brackets(self):
+        i = 0
+        stack = []
+        for pos, ch in enumerate(self.code):
+            if ch == '[':
+                stack.append(pos)
+            elif ch == ']':
+                starting_position = stack.pop()
+                self.brackets[starting_position] = pos
+                self.brackets[pos] = starting_position
 
     def inc_pointer(self):
         self.pointer += 1
@@ -59,13 +73,13 @@ class Brainfuck(object):
         if self.memory[self.pointer]:
             self.source_index += 1
         else:
-            self.source_index = self.code[self.source_index:].find(']')
+            self.source_index = self.brackets[self.source_index]
 
     def end_loop(self):
         if self.memory[self.pointer] == 0:
             self.source_index += 1
         else:
-            self.source_index = self.code[:self.source_index + 1].rfind('[')
+            self.source_index = self.brackets[self.source_index]
 
     def execute(self, cmd):
         commands = {
@@ -96,12 +110,14 @@ class Brainfuck(object):
         pointer = ' ' * (self.pointer * 3) + '^'
         return '\n'.join([memory, pointer])
 
-b = Brainfuck(transform("a+b++c+++"))
+temp = transform("ab+++[a+b-]") # >>><[<<]>>><[<<]>>>>>+++[<[<<]>>>+<[<<]>>>>>-]
+print temp
+b = Brainfuck('>>><[<<]>>><[<<]>>>>>+++[<[<<]>>>+<[<<]>>>>>-]')
 
 while True:
     try:
         print b
         b.step()
-        sleep(.5)
+        sleep(.1)
     except EndOfProgram:
         exit(0)
