@@ -12,7 +12,8 @@
 # ]     Jump backward to the matching [ unless the byte at the pointer is zero.
 
 from time import sleep
-from petting import transform
+from termcolor import colored
+from petting import cmpl
 
 class EndOfProgram(Exception):
     pass
@@ -27,7 +28,10 @@ class Brainfuck(object):
         self.map_brackets()
         
         if mapped_memory:
-            self.memory = [0] + ([0, 1] * (size / 2))
+            # The first two cells mark the start of the memory
+            # The next two cells mark the stack pointer
+            # The rest of the memory is marked with 1's
+            self.memory = [0, 0, 0, 0] + ([1, 0] * (size / 2))
         else:
             self.code = [0] * size
 
@@ -105,19 +109,31 @@ class Brainfuck(object):
         if self.pointer < 0:
             raise ValueError("Pointer can't be negative")
 
+    def run(self, print_state=False, sleep_time=0.0):
+        while True:
+            try:
+                if print_state:
+                    print self
+                self.step()
+                if sleep_time:
+                    sleep(sleep_time)
+            except EndOfProgram:
+                exit(0)
+
     def __str__(self):
-        memory = ', '.join(map(str, self.memory[:10]))
-        pointer = ' ' * (self.pointer * 3) + '^'
-        return '\n'.join([memory, pointer])
+        printable_string = '['
+        mem_slice = self.memory[:40]
+        length = len(mem_slice)
 
-temp = transform("ab+++[a+b-]") # >>><[<<]>>><[<<]>>>>>+++[<[<<]>>>+<[<<]>>>>>-]
-print temp
-b = Brainfuck('>>><[<<]>>><[<<]>>>>>+++[<[<<]>>>+<[<<]>>>>>-]')
+        for i, m in enumerate(mem_slice):
+            if i == self.pointer:
+                printable_string += colored(str(m), 'red')
+            else:
+                printable_string += str(m)
 
-while True:
-    try:
-        print b
-        b.step()
-        sleep(.1)
-    except EndOfProgram:
-        exit(0)
+            if i != length - 1:
+                printable_string += ', '
+
+        printable_string += ']'
+        
+        return printable_string + '\r'
