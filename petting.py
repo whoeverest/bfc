@@ -30,4 +30,20 @@ def transform(petting_code):
 
         brainfuck += find_var_code
 
-    return brainfuck
+    return optimize(brainfuck)
+
+def optimize(brainfuck_code):
+    replaced_something = True
+    while True:
+        if brainfuck_code.find('><') != -1:
+            brainfuck_code = brainfuck_code.replace('><', '')
+        elif brainfuck_code.find('<>') != -1:
+            brainfuck_code = brainfuck_code.replace('<>', '')
+        elif brainfuck_code.find('-+') != -1:
+            brainfuck_code = brainfuck_code.replace('-+', '')
+        elif brainfuck_code.find('+-') != -1:
+            brainfuck_code = brainfuck_code.replace('+-', '')
+        else:
+            replaced_something = False
+        if not replaced_something:
+            return brainfuck_code
