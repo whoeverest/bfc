@@ -12,16 +12,21 @@
 # ]     Jump backward to the matching [ unless the byte at the pointer is zero.
 
 from time import sleep
+from petting import transform
 
 class EndOfProgram(Exception):
     pass
 
 class Brainfuck(object):
-    def __init__(self, code):
-        self.memory = [0] * 30000
-        self.pointer = 0
+    def __init__(self, code, mapped_memory=True, size=30000):
         self.source_index = 0
-        self.code = code.replace(' ', '').replace('\n', '').replace('\t', '')
+        self.code = ''.join([ch for ch in code if ch in '<>-+[],.'])
+        self.pointer = 0
+        
+        if mapped_memory:
+            self.memory = [0] + ([0, 1] * (size / 2))
+        else:
+            self.code = [0] * size
 
     def inc_pointer(self):
         self.pointer += 1
@@ -83,20 +88,19 @@ class Brainfuck(object):
         except IndexError:
             raise EndOfProgram
 
-        print 'pointer', b.pointer
-        print 'memory', b.memory[:5]
-        # print 'si', b.source_index
+        if self.pointer < 0:
+            raise ValueError("Pointer can't be negative")
 
-add_one_and_two = '+>++[-<+>]<.'
-subtract_four_and_two = '++++>++[<->-]'
-copy_m2_to_m0 = '>>+++[-<<+>>]'
-compare_2_and_3 = '++>+++[]'
-variables = '>[<]>+[<]>>++[<]>>>+++'
+    def __str__(self):
+        memory = ', '.join(map(str, self.memory[:10]))
+        pointer = ' ' * (self.pointer * 3) + '^'
+        return '\n'.join([memory, pointer])
 
-b = Brainfuck(variables)
+b = Brainfuck(transform("a+b++c+++"))
 
 while True:
     try:
+        print b
         b.step()
         sleep(.5)
     except EndOfProgram:
