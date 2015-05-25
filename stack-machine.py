@@ -50,6 +50,7 @@ print
 7. push 1
 8. print
 """
+
 from petting import cmpl
 from brainfuck import Brainfuck
 
@@ -69,12 +70,18 @@ class Stack(object):
     def _squeeze(self):
         return '{+<-}'
 
+    def _set_zero(self):
+        return '[-]'
+
     def push_const(self, value):
         "Push a constant to the stack."
-        return self._sp() + '[-]' + ('+' * value) + self._widen()
+        return self._sp() + self._set_zero() + ('+' * value) + self._widen()
 
     def pop(self):
-        return self._sp() + self._squeeze()
+        return self._sp() + self._squeeze() + self._set_zero()
+
+    def copy(self):
+        return self._sp() + '<[]'
 
     def equals(self):
         """ Check if the two topmost values on the stack are equal.
@@ -82,13 +89,40 @@ class Stack(object):
         """
         pass
 
+    def add(self):
+        """ Add the two values on top of the stack.
+        """
+        return self._squeeze() + '[-<+>]'
+
+    def subtract(self):
+        return self._squeeze() + '[-<->]'
+
+    def fetch(self, var):
+        """ Fetch a variable by copying it to two locations
+        on the stack, then poping one back and saving it in memory.
+        """
+        return self._sp() + \
+               self._set_zero() + \
+               var + \
+               '[-' + self._sp() + '+' + '>+' + var + ']' + \
+               self._sp() + \
+               self._widen() + \
+               self._widen() + \
+               self.store(var)
+
+    def store(self, var):
+        """ Store the value currently on the stack to some var.
+        """
+        return self._squeeze() + \
+               var + \
+               self._set_zero() + \
+               self._sp() + \
+               '[-' + var + '+' + self._sp() + ']'
+
 s = Stack()
-code = s.push_const(5) + s.pop() + s.push_const(4)
+code = s.push_const(2) + s.push_const(6) + s.subtract()
 compiled = cmpl(code)
 print code
 print compiled
 b = Brainfuck(compiled)
-b.run(print_state=True, sleep_time=0.02)
-print 'asdsadasdasdas'
-print b.memory
-print 'asd'
+b.run(print_state=True, sleep_time=0.01)

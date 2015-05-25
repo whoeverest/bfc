@@ -62,8 +62,8 @@ class Brainfuck(object):
         self.memory[self.pointer] -= 1
         self.source_index += 1
 
-        if self.memory[self.pointer] < 0:
-            raise ValueError('Memory cannot be negative')
+        # if self.memory[self.pointer] < 0:
+        #     raise ValueError('Memory cannot be negative')
 
     def print_ch(self):
         print self.memory[self.pointer]
