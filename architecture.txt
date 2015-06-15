@@ -1,0 +1,64 @@
+0. current_instruction
+1. current_memory
+2. temp_register
+
+n+0. code_0 <- code pointer
+n+1. code_1
+n+2. code_2 ("[") <- left bracket pointer
+...
+
+m+0: mem_0 <- memory pointer
+m+1: mem_1
+
+RUN 
+
+(at each command you're starting at the current_instruction location)
+
+1. copy instruction from code pointer
+2. decode:
+
+"+" / "-"
+1. go to memory pointer
+2. copy memory pointer value to current_memory
+3. increment / decrement
+4. copy current_memory value to memory pointer
+5. move to code_pointer
+6. move code_pointer flag right
+7. copy instruction from code pointer
+
+">" / "<"
+1. go to code pointer
+2. move code_pointer flag right / left
+3. copy instruction from code pointer
+
+"["
+1. go to memory pointer
+2. copy memory pointer value to current_memory
+3. if current_memory != 0:
+      mark left bracket as "current left bracket" 
+      move to code_pointer
+      move pointer flag right
+      copy instruction from code pointer
+    else:
+      repeat:
+        move code_pointer flag right
+        copy instruction from code_pointer to current_instruction
+        if it's "]":
+          move code_pointer flag right
+          copy instruction from code_pointer
+          break
+
+"]"
+1. go to memory pointer
+2. copy memory pointer value to current_memory
+3. if current_memory == 0:
+      mark location as "current right bracket"
+      go left to the "current left bracket" pointer
+      demark it
+      go right to "current right bracket" and demark it
+      move code_pointer flag right
+      copy instruction from code_pointer
+    else:
+      go left to the "current left bracket"
+      move code_pointer flag right
+      copy instruction from code_pointer
