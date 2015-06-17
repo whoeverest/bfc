@@ -1,16 +1,44 @@
-0. current_instruction
-1. current_memory
-2. temp_register
+(let (x 10 y 20)
+     (print
+       (concat
+        "Total: "
+        (str (+ x y)))))
 
-n+0. code_0 <- code pointer
-n+1. code_1
-n+2. code_2 ("[") <- left bracket pointer
-...
+  A  C L  R  V
+memory = [
+  0, x  # current instruction
+  0, x  # current memory
+  0, x  # temp register
 
-m+0: mem_0 <- memory pointer
-m+1: mem_1
+  0, 0, x, x, x  # code start
+  1, 1, x, x, x
+  1, 1, x, x, x
+  ...
 
-RUN 
+  0, x  # stack start
+  1, x
+  1, x
+  ...
+
+  0, x  # RAM start
+  1, x
+  1, x
+]
+
+INSTRUCTIONS:
+1: inc
+2: dec
+3: left
+4: right
+5: lb
+6: rb
+7: putch
+8: getch
+
+cell:
+[addr, cp, lb, rb, value]
+
+RUN
 
 (at each command you're starting at the current_instruction location)
 

@@ -15,25 +15,90 @@ from time import sleep
 from termcolor import colored
 from petting import cmpl
 
+def map_memory(code, memory, free_memory=4, stack_size=4):
+    # The start of the memory is reserved for registers
+    instruction_reg = [0, 0]
+    memory_reg = [0, 0]
+    temp_reg = [0, 0]
+
+    # Code segment, each instruction is 4 cells wide
+    # [addr, lbracket, rbracket, value]
+    code_segment = [0, 0, 0, 0, 0]
+
+    for instr in code:
+        code_segment.extend([1, 1, 0, 0, instr])
+
+    # Stack
+    stack_segment = [0, 0] + ([1, 0] * (stack_size - 1))
+
+    # RAM
+    ram_segment = []
+    ram_segment.extend([0, 0])
+
+    for mem in memory:
+        ram_segment.extend([1, mem])
+
+    ram_segment.extend([1, 0] * free_memory)
+    ram_segment.extend([0, 0]) # end of memory
+
+    return instruction_reg + memory_reg + temp_reg + \
+           code_segment + \
+           stack_segment + \
+           ram_segment
+
+def print_mapped_memory(memory):
+    print 'IR', memory[0:2]
+    print 'MR', memory[2:4]
+    print 'TR', memory[4:6]
+
+    print 'code:'
+    print ' A  C  L  R  V'
+    print memory[6:11]
+    
+    i = 11
+
+    while memory[i] == 1:
+        print memory[i:i+5]
+        i += 5
+
+    print 'stack:'
+    print memory[i:i+2]
+
+    i += 2
+
+    while memory[i] == 1:
+        print memory[i:i+2]
+        i += 2
+
+    print 'memory:'
+    print memory[i:i+2]
+
+    i += 2
+
+    while memory[i] == 1:
+        print memory[i:i+2]
+        i += 2
+
+
+mapped = map_memory('+++---', [5, 0, 1, 1, 20, 30])
+print_mapped_memory(mapped)
+
+exit(0)
+
 class EndOfProgram(Exception):
     pass
 
 class Brainfuck(object):
-    def __init__(self, code, mapped_memory=True, size=30000):
+    def __init__(self, code, memory, size=30000):
         self.source_index = 0
         self.code = ''.join([ch for ch in code if ch in '<>-+[],.'])
         self.pointer = 0
         self.brackets = {}
 
         self.map_brackets()
-        
-        if mapped_memory:
-            # The first two cells mark the start of the memory
-            # The next two cells mark the stack pointer
-            # The rest of the memory is marked with 1's
-            self.memory = [0, 0, 0, 0] + ([1, 0] * (size / 2))
-        else:
-            self.code = [0] * size
+
+        if not memory:
+            self.memory = [0] * size
 
     def map_brackets(self):
         i = 0
